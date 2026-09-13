@@ -15,14 +15,21 @@ redis.on("error", (error) => {
 	console.error("Redis connection error:", error);
 });
 
-
-
-
 export const pingRedis = async (): Promise<"connected" | "disconnected"> => {
 	try {
 		return (await redis.ping()) === "PONG" ? "connected" : "disconnected";
 	} catch {
 		return "disconnected";
+	}
+};
+
+export const getRedisData = async <T>(key: string): Promise<T | null> => {
+	try {
+		const data = await redis.get(key);
+		return data ? (JSON.parse(data) as T) : null;
+	} catch (error) {
+		console.error("Redis read error:", error);
+		return null;
 	}
 };
 
@@ -33,7 +40,13 @@ export const saveRedisData = async <T>(
 	key: string,
 	data: T,
 	ttlInSeconds: number,
-) => await redis.set(key, JSON.stringify(data), "EX", ttlInSeconds);
+) => {
+	try {
+		await redis.set(key, JSON.stringify(data), "EX", ttlInSeconds);
+	} catch (error) {
+		console.error("Redis write error:", error);
+	}
+};
 
 export const updateRedisData = async <T>(
 	key: string,

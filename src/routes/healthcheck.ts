@@ -1,4 +1,4 @@
-import type { FastifyPluginAsync } from "fastify";
+import type { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
 import { z } from "zod";
 
 import { pingRedis } from "../lib/redis";
@@ -10,7 +10,7 @@ const healthCheckResponseSchema = z.object({
 	timestamp: z.string().datetime(),
 });
 
-export const healthCheck: FastifyPluginAsync = async (app) => {
+export const healthCheck: FastifyPluginAsyncZod = async (app) => {
 	app.get(
 		"/health",
 		{
