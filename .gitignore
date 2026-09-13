@@ -1,0 +1,32 @@
+# Dependencias
+node_modules/
+
+# Variaveis de ambiente
+.env
+.env.*
+!.env.example
+
+# Build e cobertura
+dist/
+build/
+coverage/
+.turbo/
+
+# Logs
+*.log
+logs/
+pnpm-debug.log*
+
+# Cache e arquivos temporarios
+.cache/
+.tmp/
+tmp/
+
+# Sistema operacional e editores
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Dados locais de ferramentas
+.eslintcache
