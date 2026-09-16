@@ -9,8 +9,8 @@ import {
 	validatorCompiler,
 } from "fastify-type-provider-zod";
 import { env } from "./lib/env";
-import { healthCheck } from "./routes/healthcheck";
 import { getWeather } from "./routes/get-weather";
+import { healthCheck } from "./routes/healthcheck";
 
 const app = fastify({ logger: true }).withTypeProvider();
 
