@@ -36,26 +36,12 @@ export const getWeather: FastifyPluginAsyncZod = async (app) => {
 
 						current: z.object({
 							time: z.string(),
-							interval: z.number(),
-							temperature_2m: z.number(),
-							relative_humidity_2m: z.number(),
-							apparent_temperature: z.number(),
+							temperature: z.number(),
+							feelsLike: z.number(),
+							humidity: z.number(),
 							precipitation: z.number(),
-							weather_code: z.number(),
-							wind_speed_10m: z.number(),
-							wind_direction_10m: z.number(),
-						}),
-
-						units: z.object({
-							time: z.string(),
-							interval: z.string(),
-							temperature_2m: z.string(),
-							relative_humidity_2m: z.string(),
-							apparent_temperature: z.string(),
-							precipitation: z.string(),
-							weather_code: z.string(),
-							wind_speed_10m: z.string(),
-							wind_direction_10m: z.string(),
+							weatherCode: z.number(),
+							windSpeed: z.number(),
 						}),
 					}),
 
@@ -88,8 +74,15 @@ export const getWeather: FastifyPluginAsyncZod = async (app) => {
 					latitude: location.latitude,
 					longitude: location.longitude,
 				},
-				current: weather.current,
-				units: weather.current_units,
+				current: {
+					time: weather.current.time,
+					temperature: weather.current.temperature_2m,
+					feelsLike: weather.current.apparent_temperature,
+					humidity: weather.current.relative_humidity_2m,
+					precipitation: weather.current.precipitation,
+					weatherCode: weather.current.weather_code,
+					windSpeed: weather.current.wind_speed_10m,
+				},
 			});
 		},
 	);
