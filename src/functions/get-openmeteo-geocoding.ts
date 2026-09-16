@@ -1,4 +1,7 @@
 import { WeatherProviderUnavailableError } from "../errors/weather-provider-unavailable-error";
+import { getRedisData, saveRedisData } from "../lib/redis";
+import { cacheKeys } from "../utils/cache-keys";
+import { CACHE_TTL } from "../utils/cache-ttl";
 
 export type GeocodingResult = {
 	id: number;
@@ -37,6 +40,14 @@ const buildGeocodingUrl = (city: string) => {
 export const getOpenMeteoGeocoding = async (
 	city: string,
 ): Promise<GeocodingResponse> => {
+	const cacheKey = cacheKeys.geocoding(city);
+
+	const cached = await getRedisData<GeocodingResponse>(cacheKey);
+
+	if (cached) {
+		return cached;
+	}
+
 	const url = buildGeocodingUrl(city);
 
 	let response: Response;
@@ -45,13 +56,17 @@ export const getOpenMeteoGeocoding = async (
 		response = await fetch(url, {
 			signal: AbortSignal.timeout(5000),
 		});
+
+		if (!response.ok) {
+			throw new WeatherProviderUnavailableError();
+		}
 	} catch {
 		throw new WeatherProviderUnavailableError();
 	}
 
-	if (!response.ok) {
-		throw new WeatherProviderUnavailableError();
-	}
+	const data = (await response.json()) as GeocodingResponse;
 
-	return (await response.json()) as GeocodingResponse;
+	await saveRedisData(cacheKey, data, CACHE_TTL.GEOCODING);
+
+	return data;
 };

@@ -1,4 +1,7 @@
 import { WeatherProviderUnavailableError } from "../errors/weather-provider-unavailable-error";
+import { getRedisData, saveRedisData } from "../lib/redis";
+import { cacheKeys } from "../utils/cache-keys";
+import { CACHE_TTL } from "../utils/cache-ttl";
 
 export interface WeatherResponse {
 	latitude: number;
@@ -62,6 +65,14 @@ export const getOpenMeteoWeather = async (
 	latitude: number,
 	longitude: number,
 ): Promise<WeatherResponse> => {
+	const cacheKey = cacheKeys.currentWeather(latitude, longitude);
+
+	const cached = await getRedisData<WeatherResponse>(cacheKey);
+
+	if (cached) {
+		return cached;
+	}
+
 	const url = buildWeatherUrl(latitude, longitude);
 
 	let response: Response;
@@ -70,13 +81,17 @@ export const getOpenMeteoWeather = async (
 		response = await fetch(url, {
 			signal: AbortSignal.timeout(5000),
 		});
+
+		if (!response.ok) {
+			throw new WeatherProviderUnavailableError();
+		}
 	} catch {
 		throw new WeatherProviderUnavailableError();
 	}
 
-	if (!response.ok) {
-		throw new WeatherProviderUnavailableError();
-	}
+	const data = (await response.json()) as WeatherResponse;
 
-	return (await response.json()) as WeatherResponse;
+	await saveRedisData(cacheKey, data, CACHE_TTL.CURRENT_WEATHER);
+
+	return data;
 };
