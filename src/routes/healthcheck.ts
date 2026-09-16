@@ -1,22 +1,19 @@
 import type { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
-import { z } from "zod";
 
 import { pingRedis } from "../lib/redis";
-
-const healthCheckResponseSchema = z.object({
-	status: z.enum(["ok", "degraded", "unavailable"]),
-	service: z.literal("weather-api"),
-	redis: z.enum(["connected", "disconnected"]).optional(),
-	timestamp: z.string().datetime(),
-});
+import { healthResponseSchema } from "../schemas/health/health-response-schema";
 
 export const healthCheck: FastifyPluginAsyncZod = async (app) => {
 	app.get(
 		"/health",
 		{
 			schema: {
+				tags: ["Health"],
+				description: "Returns the health status of the application.",
+				operationId: "healthCheck",
+
 				response: {
-					200: healthCheckResponseSchema,
+					200: healthResponseSchema,
 				},
 			},
 		},

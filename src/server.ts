@@ -8,6 +8,7 @@ import { registerCors } from "./plugins/cors";
 import { registerDocs } from "./plugins/docs";
 import { registerErrorHandler } from "./plugins/error-handler";
 import { registerRateLimit } from "./plugins/rate-limit";
+import { registerStatic } from "./plugins/static";
 import { getWeather } from "./routes/get-weather";
 import { getWeatherForecast } from "./routes/get-weather-forecast";
 import { healthCheck } from "./routes/healthcheck";
@@ -20,6 +21,7 @@ app.setSerializerCompiler(serializerCompiler);
 registerErrorHandler(app);
 registerCors(app);
 registerRateLimit(app);
+registerStatic(app);
 registerDocs(app);
 
 app.register(healthCheck);

@@ -1,10 +1,12 @@
 import type { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
-import z from "zod";
 
 import { CityNotFoundError } from "../errors/city-not-found-error";
 import { getForecast } from "../functions/get-forecast";
 import { getOpenMeteoGeocoding } from "../functions/get-openmeteo-geocoding";
-import { errorResponseSchema } from "../schemas/error-response-schema";
+import { cityNotFoundResponseSchema } from "../schemas/weather/city-not-found-response-schema";
+import { getWeatherForecastQuerySchema } from "../schemas/weather/get-weather-forecast-query-schema";
+import { getWeatherForecastResponseSchema } from "../schemas/weather/get-weather-forecast-response-schema";
+import { weatherProviderUnavailableResponseSchema } from "../schemas/weather/weather-provider-unavailable-response-schema";
 
 export const getWeatherForecast: FastifyPluginAsyncZod = async (app) => {
 	app.get(
@@ -16,42 +18,12 @@ export const getWeatherForecast: FastifyPluginAsyncZod = async (app) => {
 					"Returns the weather forecast for a city for a specified number of days.",
 				operationId: "getWeatherForecast",
 
-				querystring: z.object({
-					city: z
-						.string("City name must be a string")
-						.trim()
-						.toLowerCase()
-						.min(1, "City name is required")
-						.max(100, "City name is too long"),
-
-					days: z.coerce.number().int().min(1).max(7).default(5),
-				}),
+				querystring: getWeatherForecastQuerySchema,
 
 				response: {
-					200: z.object({
-						location: z.object({
-							city: z.string(),
-							state: z.string().optional(),
-							country: z.string(),
-							latitude: z.number(),
-							longitude: z.number(),
-						}),
-
-						forecast: z.array(
-							z.object({
-								date: z.string(),
-								weatherCode: z.number(),
-								temperatureMax: z.number(),
-								temperatureMin: z.number(),
-								precipitationProbability: z.number(),
-								sunrise: z.string(),
-								sunset: z.string(),
-							}),
-						),
-					}),
-
-					404: errorResponseSchema,
-					503: errorResponseSchema,
+					200: getWeatherForecastResponseSchema,
+					404: cityNotFoundResponseSchema,
+					503: weatherProviderUnavailableResponseSchema,
 				},
 			},
 		},

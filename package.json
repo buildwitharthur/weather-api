@@ -4,7 +4,8 @@
 	"main": "src/server.ts",
 	"scripts": {
 		"dev": "tsx watch src/server.ts",
-		"start": "node src/server.js",
+		"build": "tsc",
+		"start": "node dist/server.js",
 		"lint": "pnpx @biomejs/biome check --write"
 	},
 	"devDependencies": {
@@ -16,6 +17,7 @@
 	"dependencies": {
 		"@fastify/cors": "^11.3.0",
 		"@fastify/rate-limit": "^11.2.0",
+		"@fastify/static": "^10.1.3",
 		"@fastify/swagger": "^9.8.1",
 		"@scalar/fastify-api-reference": "^1.68.0",
 		"dotenv": "^17.4.2",
