@@ -1,3 +1,5 @@
+import { WeatherProviderUnavailableError } from "../errors/weather-provider-unavailable-error";
+
 export interface WeatherResponse {
 	latitude: number;
 	longitude: number;
@@ -62,7 +64,19 @@ export const getOpenMeteoWeather = async (
 ): Promise<WeatherResponse> => {
 	const url = buildWeatherUrl(latitude, longitude);
 
-	const response = await fetch(url);
+	let response: Response;
+
+	try {
+		response = await fetch(url, {
+			signal: AbortSignal.timeout(5000),
+		});
+	} catch {
+		throw new WeatherProviderUnavailableError();
+	}
+
+	if (!response.ok) {
+		throw new WeatherProviderUnavailableError();
+	}
 
 	return (await response.json()) as WeatherResponse;
 };

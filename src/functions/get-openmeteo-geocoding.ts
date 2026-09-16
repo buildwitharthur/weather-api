@@ -1,3 +1,5 @@
+import { WeatherProviderUnavailableError } from "../errors/weather-provider-unavailable-error";
+
 export type GeocodingResult = {
 	id: number;
 	name: string;
@@ -37,7 +39,19 @@ export const getOpenMeteoGeocoding = async (
 ): Promise<GeocodingResponse> => {
 	const url = buildGeocodingUrl(city);
 
-	const response = await fetch(url);
+	let response: Response;
+
+	try {
+		response = await fetch(url, {
+			signal: AbortSignal.timeout(5000),
+		});
+	} catch {
+		throw new WeatherProviderUnavailableError();
+	}
+
+	if (!response.ok) {
+		throw new WeatherProviderUnavailableError();
+	}
 
 	return (await response.json()) as GeocodingResponse;
 };
