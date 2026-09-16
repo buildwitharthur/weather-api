@@ -10,6 +10,7 @@ import {
 } from "fastify-type-provider-zod";
 import { env } from "./lib/env";
 import { healthCheck } from "./routes/healthcheck";
+import { getWeather } from "./routes/get-weather";
 
 const app = fastify({ logger: true }).withTypeProvider();
 
@@ -49,5 +50,6 @@ app.register(scalar, {
 app.get("/openapi.json", () => app.swagger());
 
 app.register(healthCheck);
+app.register(getWeather);
 
 app.listen({ host: "0.0.0.0", port: env.PORT });
