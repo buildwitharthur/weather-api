@@ -107,7 +107,7 @@ Use Node.js 22, que é a versão da imagem Docker, pnpm e Docker Compose para o 
 ```bash
 pnpm install --frozen-lockfile
 cp .env.example .env
-docker compose up -d redis
+docker compose run --rm -d -p 127.0.0.1:6379:6379 redis
 pnpm dev
 ```
 
@@ -116,7 +116,7 @@ No PowerShell, a cópia do arquivo de ambiente é feita com `Copy-Item .env.exam
 A documentação local fica em [http://localhost:3000/docs](http://localhost:3000/docs). Para iniciar a API e o Redis em containers:
 
 ```bash
-docker compose up --build
+docker compose up --build -d
 ```
 
 ## Variáveis de ambiente
@@ -129,7 +129,7 @@ O projeto lê o arquivo `.env` e valida as variáveis com Zod na inicialização
 | `PORT` | `3000` | Inteiro de 1 a 65535 |
 | `REDIS_URL` | `redis://localhost:6379` | URL |
 
-No Compose, a API usa `redis://redis:6379` para acessar o Redis pela rede dos containers.
+No Compose, a API usa `redis://redis:6379` para acessar o Redis pela rede dos containers. Apenas a porta 3000 da API é publicada; o Redis fica restrito à rede interna. O comando de execução local acima publica o Redis somente em `127.0.0.1` para o uso com `pnpm dev`.
 
 
 ## Decisões técnicas
@@ -146,4 +146,3 @@ No Compose, a API usa `redis://redis:6379` para acessar o Redis pela rede dos co
 - Não há novas tentativas, provedor alternativo ou retorno de dados expirados quando a Open-Meteo falha.
 - A resposta da Open-Meteo recebe tipagem TypeScript sem validação de schema em execução. Dados malformados podem causar HTTP 500.
 - O limite de requisições fica na memória do processo e o CORS permite qualquer origem.
-
